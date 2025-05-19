@@ -16,6 +16,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
   Color selectedColor = const Color(0xFF999DF6);
   IconData selectedIcon = Icons.flag;
   bool isRepetitive = false;
+  bool isHabit = false;
   String selectedUnit = 'pages';
   List<String> selectedWeekDays = [];
 
@@ -126,6 +127,20 @@ class _AddGoalPageState extends State<AddGoalPage> {
 
               const SizedBox(height: 24),
 
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Track as habit?", style: TextStyle(fontSize: 16, color: darkText)),
+                  Switch(
+                    value: isHabit,
+                    activeColor: Color(0xFF999DF6),
+                    onChanged: (val) => setState(() => isHabit = val),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
               Text("Set goal details:", style: TextStyle(color: darkText, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
 
@@ -142,16 +157,16 @@ class _AddGoalPageState extends State<AddGoalPage> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       value: selectedUnit,
-                      items: units
-                          .map((unit) => DropdownMenuItem(
-                        value: unit,
-                        child: Text(unit),
-                      ))
-                          .toList(),
+                      items: units.map((unit) {
+                        return DropdownMenuItem(
+                          value: unit,
+                          child: Text(unit),
+                        );
+                      }).toList(),
                       onChanged: (val) => setState(() => selectedUnit = val!),
                       decoration: InputDecoration(
                         labelText: "Unit",
@@ -160,7 +175,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
                       controller: _dailyTargetController,
@@ -212,8 +227,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                     onTap: () => setState(() => selectedIcon = icon),
                     child: CircleAvatar(
                       radius: 30,
-                      backgroundColor:
-                      selectedIcon == icon ? darkText : Colors.grey[300],
+                      backgroundColor: selectedIcon == icon ? darkText : Colors.grey[300],
                       child: Icon(icon, color: Colors.white, size: 28),
                     ),
                   );
@@ -232,8 +246,13 @@ class _AddGoalPageState extends State<AddGoalPage> {
                     'description': _descController.text.trim(),
                     'color': selectedColor,
                     'icon': selectedIcon,
-                    'interval': isRepetitive ? 'custom' : 'once',
+                    'interval': isHabit
+                        ? 'habit'
+                        : isRepetitive
+                        ? 'custom'
+                        : 'once',
                     'weekDays': selectedWeekDays,
+                    'isHabit': isHabit,
                     'progress': 0,
                     'total': int.tryParse(_totalAmountController.text) ?? 100,
                     'dailyTarget': int.tryParse(_dailyTargetController.text) ?? 10,

@@ -1,11 +1,29 @@
 import 'package:flutter/material.dart';
-import 'plus.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:intl/intl.dart';
+import 'plus.dart';
 
 void main() {
-  runApp(const MaterialApp(
+  runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: GoalsPage(),
+    theme: ThemeData(
+      scaffoldBackgroundColor: const Color(0xFFF8F1E9),
+      textTheme: ThemeData.light().textTheme.apply(
+        bodyColor: const Color(0xFF3C4F76),
+        displayColor: const Color(0xFF3C4F76),
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        labelStyle: TextStyle(color: Color(0xFF3C4F76)),
+        hintStyle: TextStyle(color: Color(0xFF3C4F76)),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF3C4F76)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF3C4F76), width: 2),
+        ),
+      ),
+    ),
+    home: const GoalsPage(),
   ));
 }
 
@@ -22,7 +40,35 @@ class _GoalsPageState extends State<GoalsPage> {
   final Color headerTextColor = const Color(0xFF3A3F5F);
   final Color textDarkBlue = const Color(0xFF2F3A5A);
 
-  final List<Map<String, dynamic>> userGoals = [];
+  List<Map<String, dynamic>> allGoals = [];
+
+  // 🔽 Get today (Mon, Tue...) from phone
+  String get currentDay => DateFormat('E').format(DateTime.now());
+
+  List<Map<String, dynamic>> get todayGoals {
+    return allGoals.where((goal) {
+      final interval = goal['interval'] ?? 'once';
+      final bool isHabit = goal['isHabit'] ?? false;
+
+      if (isHabit) return true;
+
+      if (interval == 'custom') {
+        final List<dynamic> days = goal['weekDays'] ?? [];
+        return days.contains(currentDay);
+      }
+
+      if (interval == 'once') {
+        final DateTime? addedOn = goal['addedOn'];
+        if (addedOn == null) return false;
+        final now = DateTime.now();
+        return addedOn.year == now.year &&
+            addedOn.month == now.month &&
+            addedOn.day == now.day;
+      }
+
+      return false;
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +81,7 @@ class _GoalsPageState extends State<GoalsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                // Top bar
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: const [
@@ -64,6 +111,7 @@ class _GoalsPageState extends State<GoalsPage> {
 
                 const SizedBox(height: 16),
 
+                // Tabs
                 SizedBox(
                   height: 50,
                   child: ListView(
@@ -79,6 +127,7 @@ class _GoalsPageState extends State<GoalsPage> {
 
                 const SizedBox(height: 24),
 
+                // Calendar
                 TableCalendar(
                   firstDay: DateTime.utc(2000, 1, 1),
                   lastDay: DateTime.utc(2100, 12, 31),
@@ -102,6 +151,7 @@ class _GoalsPageState extends State<GoalsPage> {
 
                 const SizedBox(height: 24),
 
+                // Goals header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -123,7 +173,8 @@ class _GoalsPageState extends State<GoalsPage> {
 
                         if (result != null && result is Map<String, dynamic>) {
                           setState(() {
-                            userGoals.add(result);
+                            result['addedOn'] = DateTime.now(); // used for "once" goal
+                            allGoals.add(result);
                           });
                         }
                       },
@@ -133,11 +184,12 @@ class _GoalsPageState extends State<GoalsPage> {
 
                 const SizedBox(height: 16),
 
-                userGoals.isEmpty
+                // Show goals
+                todayGoals.isEmpty
                     ? Padding(
                   padding: const EdgeInsets.only(top: 32),
                   child: Text(
-                    "No goals yet. Tap + to get started!",
+                    "No goals for today. Tap + to add one!",
                     style: TextStyle(color: Colors.grey[600], fontSize: 16),
                   ),
                 )
@@ -150,9 +202,9 @@ class _GoalsPageState extends State<GoalsPage> {
                     mainAxisSpacing: 12,
                     childAspectRatio: 1.4,
                   ),
-                  itemCount: userGoals.length,
+                  itemCount: todayGoals.length,
                   itemBuilder: (context, index) {
-                    final goal = userGoals[index];
+                    final goal = todayGoals[index];
                     return buildGoalCard(goal);
                   },
                 ),
@@ -192,12 +244,17 @@ class _GoalsPageState extends State<GoalsPage> {
 
   Widget buildGoalCard(Map<String, dynamic> goal) {
     final String title = goal['name'];
+    final bool isHabit = goal['isHabit'] ?? false;
     final int total = goal['total'] ?? 100;
     final int progress = goal['progress'] ?? 0;
+    final int dailyTarget = goal['dailyTarget'] ?? 10;
     final String unit = goal['unit'] ?? '';
     final Color color = goal['color'] as Color;
     final IconData icon = goal['icon'] as IconData;
     final textColor = darken(color, 0.3);
+
+    final int showTotal = isHabit ? dailyTarget : total;
+    final String label = "$progress / $showTotal $unit";
 
     return Container(
       decoration: BoxDecoration(
@@ -227,14 +284,14 @@ class _GoalsPageState extends State<GoalsPage> {
               ),
               const SizedBox(height: 4),
               LinearProgressIndicator(
-                value: (progress / total).clamp(0.0, 1.0),
+                value: (progress / showTotal).clamp(0.0, 1.0),
                 backgroundColor: Colors.white.withOpacity(0.4),
                 color: textColor,
                 minHeight: 6,
               ),
               const SizedBox(height: 4),
               Text(
-                "$progress / $total $unit",
+                label,
                 style: TextStyle(fontSize: 12, color: textColor),
               ),
             ],
