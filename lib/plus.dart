@@ -28,19 +28,26 @@ class _AddGoalPageState extends State<AddGoalPage> {
     'calories',
   ];
 
-  final darkText = const Color(0xFF2F3A5A);
+  final darkText = const Color(0xFF3C4F76);
 
-  final List<Color> pastelColors = [
-    Color(0xFF999DF6),
-    Color(0xFFF6BF2E),
-    Color(0xFFF7D98A),
-    Color(0xFFD1E8F5),
-    Color(0xFFB2E4D5),
-    Color(0xFFF9D3C8),
-    Color(0xFFE4D7F2),
-    Color(0xFFF4E1E6),
-    Color(0xFFFCEEDA),
+  final List<Color> goalColors = [
+    Color(0xFFFFD8C2), // soft peach
+    Color(0xFFFCD5CE), // light coral pink
+    Color(0xFFFBD3E0), // pastel pink
+    Color(0xFFF6E4D9), // warm blush
+    Color(0xFFFFEAA7), // light yellow
+    Color(0xFFFFF5C3), // pale cream yellow
+    Color(0xFFDFF3C2), // pastel lime green
+    Color(0xFFCCE3C0), // mint green
+    Color(0xFFD2F1E4), // clean aqua green
+    Color(0xFFC7D7F2), // soft blue
+    Color(0xFFD1E7F0), // sky blue
+    Color(0xFFD8D3F7), // lavender
+    Color(0xFFE5DCF6), // pale purple
+    Color(0xFFE8D7F4), // lilac
   ];
+
+  
 
   final List<IconData> icons = [
     Icons.directions_run,
@@ -58,6 +65,15 @@ class _AddGoalPageState extends State<AddGoalPage> {
     Icons.bubble_chart,
     Icons.brightness_7,
   ];
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descController.dispose();
+    _totalAmountController.dispose();
+    _dailyTargetController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +156,6 @@ class _AddGoalPageState extends State<AddGoalPage> {
               ),
 
               const SizedBox(height: 16),
-
               Text("Set goal details:", style: TextStyle(color: darkText, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
 
@@ -153,7 +168,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                       decoration: InputDecoration(
                         labelText: "Total",
                         labelStyle: TextStyle(color: darkText),
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ),
@@ -164,14 +179,14 @@ class _AddGoalPageState extends State<AddGoalPage> {
                       items: units.map((unit) {
                         return DropdownMenuItem(
                           value: unit,
-                          child: Text(unit),
+                          child: Text(unit, style: TextStyle(color: darkText)),
                         );
                       }).toList(),
                       onChanged: (val) => setState(() => selectedUnit = val!),
                       decoration: InputDecoration(
                         labelText: "Unit",
                         labelStyle: TextStyle(color: darkText),
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ),
@@ -183,7 +198,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                       decoration: InputDecoration(
                         labelText: "Per day",
                         labelStyle: TextStyle(color: darkText),
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ),
@@ -191,13 +206,12 @@ class _AddGoalPageState extends State<AddGoalPage> {
               ),
 
               const SizedBox(height: 32),
-
               Text("Pick a color:", style: TextStyle(color: darkText)),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
-                children: pastelColors.map((color) {
+                children: goalColors.map((color) {
                   return GestureDetector(
                     onTap: () => setState(() => selectedColor = color),
                     child: Container(
@@ -268,3 +282,4 @@ class _AddGoalPageState extends State<AddGoalPage> {
     );
   }
 }
+
