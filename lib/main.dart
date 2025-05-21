@@ -2,35 +2,73 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import 'plus.dart';
+import 'app_colors.dart';
+import 'theme.dart';
 
 final ThemeData _lightTheme = ThemeData(
   useMaterial3: true,
   scaffoldBackgroundColor: const Color(0xFFF8F1E9),
-  primaryColor: const Color(0xFF3C4F76),
+  primaryColor: const Color(0xFFC3CCF7),
   iconTheme: const IconThemeData(color: Color(0xFF3C4F76)),
   textTheme: ThemeData.light().textTheme.apply(
-    bodyColor: Color(0xFF3C4F76),
-    displayColor: Color(0xFF3C4F76),
+    bodyColor: const Color(0xFF3C4F76),
+    displayColor: const Color(0xFF3C4F76),
   ),
   bottomAppBarTheme: const BottomAppBarTheme(
-    color: Color(0xFFF1E8E2),
+    color: Color(0xFFC3CCF7),
     elevation: 0,
   ),
+  extensions: <ThemeExtension<dynamic>>[
+    const AppColors(
+      rose: Color(0xFFD99FA6),
+      coral: Color(0xFFF4A896),
+      peach: Color(0xFFF5C6AA),
+      sand: Color(0xFFE8B888),
+      mint: Color(0xFFC7D8B6),
+      sage: Color(0xFFAAC3A7),
+      fog: Color(0xFFD6DBE1),
+      steel: Color(0xFFA1B2C6),
+      lavender: Color(0xFFB6A6D8),
+      lilac: Color(0xFFD1B9E2),
+      wine: Color(0xFF8D5D67),
+      slate: Color(0xFF5A7684),
+      gold: Color(0xFFAA8C5F),
+      seafoam: Color(0xFF99C1B1),
+    ),
+  ],
 );
 
 final ThemeData _darkTheme = ThemeData(
   useMaterial3: true,
   scaffoldBackgroundColor: const Color(0xFF2B2739),
-  primaryColor: const Color(0xFFE5E4F0),
+  primaryColor: const Color(0xFF7566EA),
   iconTheme: const IconThemeData(color: Color(0xFFE5E4F0)),
   textTheme: ThemeData.dark().textTheme.apply(
-    bodyColor: Color(0xFFE5E4F0),
-    displayColor: Color(0xFFB9B7C9),
+    bodyColor: const Color(0xFFE5E4F0),
+    displayColor: const Color(0xFFE5E4F0),
   ),
   bottomAppBarTheme: const BottomAppBarTheme(
     color: Color(0xFF7566EA),
     elevation: 0,
   ),
+  extensions: <ThemeExtension<dynamic>>[
+    const AppColors(
+      rose: Color(0xFFD99FA6),
+      coral: Color(0xFFF4A896),
+      peach: Color(0xFFF5C6AA),
+      sand: Color(0xFFE8B888),
+      mint: Color(0xFFC7D8B6),
+      sage: Color(0xFFAAC3A7),
+      fog: Color(0xFFD6DBE1),
+      steel: Color(0xFFA1B2C6),
+      lavender: Color(0xFFB6A6D8),
+      lilac: Color(0xFFD1B9E2),
+      wine: Color(0xFF8D5D67),
+      slate: Color(0xFF5A7684),
+      gold: Color(0xFFAA8C5F),
+      seafoam: Color(0xFF99C1B1),
+    ),
+  ],
 );
 
 void main() {
@@ -62,6 +100,16 @@ class _GoalsPageState extends State<GoalsPage> {
     if (hour < 18) return "Good afternoon";
     return "Good evening";
   }
+
+  Color get primaryTextColor =>
+      Theme.of(context).brightness == Brightness.dark
+          ? const Color(0xFFF9F1E8) // rgba(249,241,232,255)
+          : const Color(0xFF3C4F76);
+
+  Color get secondaryTextColor =>
+      Theme.of(context).brightness == Brightness.dark
+          ? const Color(0xFFF5F0D9) // rgba(245,240,217,255)
+          : const Color(0xFFB9B7C9);
 
   List<Map<String, dynamic>> get todayGoals {
     return allGoals.where((goal) {
@@ -103,20 +151,10 @@ class _GoalsPageState extends State<GoalsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final iconColor = isDark
-        ? const Color(0xFFFFF4EC)
-        : const Color(0xFF4F5267);
-
-    final fabBackground = isDark
-        ? const Color(0xFF7566EA)
-        : const Color(0xFFF1E8E2);
-
-    final fabIcon = isDark
-        ? const Color(0xFFFFF4EC)
-        : const Color(0xFF4F5267);
+    final iconColor = isDark ? const Color(0xFFFFF4EC) : const Color(0xFF4F5267);
+    final fabBackground = isDark ? const Color(0xFF7566EA) : const Color(0xFFF1E8E2);
+    final fabIcon = isDark ? const Color(0xFFFFF4EC) : const Color(0xFF4F5267);
 
     return Scaffold(
       body: SafeArea(
@@ -125,47 +163,35 @@ class _GoalsPageState extends State<GoalsPage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    CircleAvatar(radius: 16, backgroundColor: Colors.grey),
-                    Row(
-                      children: [
-                        Icon(Icons.search, size: 28),
-                        SizedBox(width: 16),
-                        Icon(Icons.menu, size: 28),
-                      ],
-                    )
-                  ],
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Icon(Icons.search, size: 28, color: iconColor),
                 ),
                 const SizedBox(height: 16),
-
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "$dynamicGreeting,\n(User name)",
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
+                      color: primaryTextColor,
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
-
                 SizedBox(
                   height: 50,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     children: [
-                      buildTab("Main Page", active: true),
-                      buildTab("Analytics"),
-                      buildTab("Calendar"),
-                      buildTab("PDF reader"),
+                      buildTab(context, "Main Page", active: true),
+                      buildTab(context, "Analytics"),
+                      buildTab(context, "Calendar"),
+                      buildTab(context, "PDF reader"),
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
                 TableCalendar(
                   firstDay: DateTime.utc(2000, 1, 1),
                   lastDay: DateTime.utc(2100, 12, 31),
@@ -173,18 +199,25 @@ class _GoalsPageState extends State<GoalsPage> {
                   headerStyle: HeaderStyle(
                     formatButtonVisible: false,
                     titleCentered: true,
-                    titleTextStyle: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+                    titleTextStyle: TextStyle(
+                      color: primaryTextColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   calendarStyle: CalendarStyle(
-                    weekendTextStyle: TextStyle(color: textColor),
-                    defaultTextStyle: TextStyle(color: textColor),
-                    todayDecoration: BoxDecoration(color: highlightColor, shape: BoxShape.circle),
-                    selectedDecoration: BoxDecoration(color: highlightColor, shape: BoxShape.circle),
+                    weekendTextStyle: TextStyle(color: primaryTextColor),
+                    defaultTextStyle: TextStyle(color: primaryTextColor),
+                    todayDecoration: BoxDecoration(
+                      color: highlightColor,
+                      shape: BoxShape.circle,
+                    ),
+                    selectedDecoration: BoxDecoration(
+                      color: highlightColor,
+                      shape: BoxShape.circle,
+                    ),
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -192,19 +225,20 @@ class _GoalsPageState extends State<GoalsPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: textColor,
+                      color: primaryTextColor,
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
                 todayGoals.isEmpty
                     ? Padding(
                   padding: const EdgeInsets.only(top: 32),
                   child: Text(
                     "No goals for today. Tap + to add one!",
-                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: secondaryTextColor,
+                    ),
                   ),
                 )
                     : GridView.builder(
@@ -227,9 +261,9 @@ class _GoalsPageState extends State<GoalsPage> {
           ),
         ),
       ),
-
       bottomNavigationBar: BottomAppBar(
         elevation: 0,
+        color: isDark ? const Color(0xFF7566EA) : const Color(0xFFC3CCF7),
         child: SizedBox(
           height: 70,
           child: Row(
@@ -263,71 +297,70 @@ class _GoalsPageState extends State<GoalsPage> {
       ),
     );
   }
+
+  Widget buildGoalCard(Map<String, dynamic> goal) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.dark ? Colors.black12 : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? const Color(0xFF7566EA)
+              : const Color(0xFF3B4E75),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(goal['icon'] ?? Icons.flag, size: 28, color: primaryTextColor),
+          const SizedBox(height: 8),
+          Text(
+            goal['title'] ?? 'Untitled',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: primaryTextColor,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            goal['unit'] != null ? "0 / ${goal['unit']}" : "In Progress",
+            style: TextStyle(
+              color: secondaryTextColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
+Widget buildTab(BuildContext context, String label, {bool active = false}) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  final Color activeBg = isDark ? const Color(0xFF7566EA) : const Color(0xFFC3CCF7);
+  final Color inactiveBg = isDark ? Colors.transparent : const Color(0xFFF8F1E9);
+  final Color activeText = isDark ? const Color(0xFFE5E4F0) : Colors.white;
+  final Color inactiveText = isDark ? const Color(0xFF7566EA) : const Color(0xFF3C4F76);
+  final Color borderColor = isDark ? const Color(0xFF7566EA) : const Color(0xFF3B4E75);
 
-Widget buildTab(String label, {bool active = false}) {
   return Padding(
     padding: const EdgeInsets.only(right: 12),
     child: Container(
+      alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
       decoration: BoxDecoration(
-        color: active ? const Color(0xFFC3CBF7) : Colors.grey[300],
+        color: active ? activeBg : inactiveBg,
         borderRadius: BorderRadius.circular(20),
+        border: active ? null : Border.all(color: borderColor, width: 1.5),
       ),
       child: Text(
         label,
-        style: const TextStyle(fontWeight: FontWeight.w600),
-      ),
-    ),
-  );
-}
-
-Color darken(Color color, [double amount = 0.3]) {
-  final hsl = HSLColor.fromColor(color);
-  return hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0)).toColor();
-}
-
-Widget buildGoalCard(Map<String, dynamic> goal) {
-  final String title = goal['name'];
-  final bool isHabit = goal['isHabit'] ?? false;
-  final int total = goal['total'] ?? 100;
-  final int dailyTarget = goal['dailyTarget'] ?? 10;
-  final int progress = goal['progress'] ?? 0;
-  final String unit = goal['unit'] ?? '';
-  final Color color = goal['color'] as Color;
-  final IconData icon = goal['icon'] as IconData;
-
-  final int showTotal = isHabit ? dailyTarget : total;
-  final textColor = darken(color);
-  final String label = "$progress / $showTotal $unit";
-
-  return Container(
-    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
-    padding: const EdgeInsets.all(16),
-    child: Stack(
-      children: [
-        Align(alignment: Alignment.topRight, child: Icon(icon, color: Colors.white, size: 20)),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: textColor, fontSize: 15, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            LinearProgressIndicator(
-              value: (progress / showTotal).clamp(0.0, 1.0),
-              backgroundColor: Colors.white.withOpacity(0.4),
-              color: textColor,
-              minHeight: 6,
-            ),
-            const SizedBox(height: 4),
-            Text(label, style: TextStyle(fontSize: 12, color: textColor)),
-          ],
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: active ? activeText : inactiveText,
         ),
-      ],
+      ),
     ),
   );
 }
