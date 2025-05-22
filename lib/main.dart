@@ -5,78 +5,12 @@ import 'plus.dart';
 import 'app_colors.dart';
 import 'theme.dart';
 
-final ThemeData _lightTheme = ThemeData(
-  useMaterial3: true,
-  scaffoldBackgroundColor: const Color(0xFFF8F1E9),
-  primaryColor: const Color(0xFFC3CCF7),
-  iconTheme: const IconThemeData(color: Color(0xFF3C4F76)),
-  textTheme: ThemeData.light().textTheme.apply(
-    bodyColor: const Color(0xFF3C4F76),
-    displayColor: const Color(0xFF3C4F76),
-  ),
-  bottomAppBarTheme: const BottomAppBarTheme(
-    color: Color(0xFFC3CCF7),
-    elevation: 0,
-  ),
-  extensions: <ThemeExtension<dynamic>>[
-    const AppColors(
-      rose: Color(0xFFD99FA6),
-      coral: Color(0xFFF4A896),
-      peach: Color(0xFFF5C6AA),
-      sand: Color(0xFFE8B888),
-      mint: Color(0xFFC7D8B6),
-      sage: Color(0xFFAAC3A7),
-      fog: Color(0xFFD6DBE1),
-      steel: Color(0xFFA1B2C6),
-      lavender: Color(0xFFB6A6D8),
-      lilac: Color(0xFFD1B9E2),
-      wine: Color(0xFF8D5D67),
-      slate: Color(0xFF5A7684),
-      gold: Color(0xFFAA8C5F),
-      seafoam: Color(0xFF99C1B1),
-    ),
-  ],
-);
-
-final ThemeData _darkTheme = ThemeData(
-  useMaterial3: true,
-  scaffoldBackgroundColor: const Color(0xFF2B2739),
-  primaryColor: const Color(0xFF7566EA),
-  iconTheme: const IconThemeData(color: Color(0xFFE5E4F0)),
-  textTheme: ThemeData.dark().textTheme.apply(
-    bodyColor: const Color(0xFFE5E4F0),
-    displayColor: const Color(0xFFE5E4F0),
-  ),
-  bottomAppBarTheme: const BottomAppBarTheme(
-    color: Color(0xFF7566EA),
-    elevation: 0,
-  ),
-  extensions: <ThemeExtension<dynamic>>[
-    const AppColors(
-      rose: Color(0xFFD99FA6),
-      coral: Color(0xFFF4A896),
-      peach: Color(0xFFF5C6AA),
-      sand: Color(0xFFE8B888),
-      mint: Color(0xFFC7D8B6),
-      sage: Color(0xFFAAC3A7),
-      fog: Color(0xFFD6DBE1),
-      steel: Color(0xFFA1B2C6),
-      lavender: Color(0xFFB6A6D8),
-      lilac: Color(0xFFD1B9E2),
-      wine: Color(0xFF8D5D67),
-      slate: Color(0xFF5A7684),
-      gold: Color(0xFFAA8C5F),
-      seafoam: Color(0xFF99C1B1),
-    ),
-  ],
-);
-
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     themeMode: ThemeMode.system,
-    theme: _lightTheme,
-    darkTheme: _darkTheme,
+    theme: lightTheme,
+    darkTheme: darkTheme,
     home: const GoalsPage(),
   ));
 }
@@ -89,7 +23,6 @@ class GoalsPage extends StatefulWidget {
 }
 
 class _GoalsPageState extends State<GoalsPage> {
-  final Color highlightColor = const Color(0xFFC3CBF7);
   final List<Map<String, dynamic>> allGoals = [];
 
   String get currentDay => DateFormat('E').format(DateTime.now());
@@ -100,16 +33,6 @@ class _GoalsPageState extends State<GoalsPage> {
     if (hour < 18) return "Good afternoon";
     return "Good evening";
   }
-
-  Color get primaryTextColor =>
-      Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFF9F1E8) // rgba(249,241,232,255)
-          : const Color(0xFF3C4F76);
-
-  Color get secondaryTextColor =>
-      Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFFF5F0D9) // rgba(245,240,217,255)
-          : const Color(0xFFB9B7C9);
 
   List<Map<String, dynamic>> get todayGoals {
     return allGoals.where((goal) {
@@ -151,12 +74,14 @@ class _GoalsPageState extends State<GoalsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final iconColor = isDark ? const Color(0xFFFFF4EC) : const Color(0xFF4F5267);
-    final fabBackground = isDark ? const Color(0xFF7566EA) : const Color(0xFFF1E8E2);
-    final fabIcon = isDark ? const Color(0xFFFFF4EC) : const Color(0xFF4F5267);
+    final theme = Theme.of(context);
+    final textColor = theme.textTheme.bodyMedium?.color ?? Colors.black;
+    final primary = theme.primaryColor;
+    final bgColor = theme.scaffoldBackgroundColor;
+    final iconColor = theme.iconTheme.color ?? primary;
 
     return Scaffold(
+      backgroundColor: bgColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -172,9 +97,9 @@ class _GoalsPageState extends State<GoalsPage> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "$dynamicGreeting,\n(User name)",
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: primaryTextColor,
+                      color: textColor,
                     ),
                   ),
                 ),
@@ -200,19 +125,19 @@ class _GoalsPageState extends State<GoalsPage> {
                     formatButtonVisible: false,
                     titleCentered: true,
                     titleTextStyle: TextStyle(
-                      color: primaryTextColor,
+                      color: textColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   calendarStyle: CalendarStyle(
-                    weekendTextStyle: TextStyle(color: primaryTextColor),
-                    defaultTextStyle: TextStyle(color: primaryTextColor),
+                    weekendTextStyle: TextStyle(color: textColor),
+                    defaultTextStyle: TextStyle(color: textColor),
                     todayDecoration: BoxDecoration(
-                      color: highlightColor,
+                      color: theme.primaryColor.withOpacity(0.2),
                       shape: BoxShape.circle,
                     ),
                     selectedDecoration: BoxDecoration(
-                      color: highlightColor,
+                      color: theme.primaryColor.withOpacity(0.4),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -225,7 +150,7 @@ class _GoalsPageState extends State<GoalsPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: primaryTextColor,
+                      color: textColor,
                     ),
                   ),
                 ),
@@ -235,10 +160,7 @@ class _GoalsPageState extends State<GoalsPage> {
                   padding: const EdgeInsets.only(top: 32),
                   child: Text(
                     "No goals for today. Tap + to add one!",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: secondaryTextColor,
-                    ),
+                    style: TextStyle(fontSize: 16, color: theme.textTheme.bodySmall?.color),
                   ),
                 )
                     : GridView.builder(
@@ -253,7 +175,7 @@ class _GoalsPageState extends State<GoalsPage> {
                   itemCount: todayGoals.length,
                   itemBuilder: (context, index) {
                     final goal = todayGoals[index];
-                    return buildGoalCard(goal);
+                    return buildGoalCard(goal, context);
                   },
                 ),
               ],
@@ -263,21 +185,15 @@ class _GoalsPageState extends State<GoalsPage> {
       ),
       bottomNavigationBar: BottomAppBar(
         elevation: 0,
-        color: isDark ? const Color(0xFF7566EA) : const Color(0xFFC3CCF7),
+        color: theme.bottomAppBarTheme.color,
         child: SizedBox(
           height: 70,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              IconButton(
-                icon: Icon(Icons.bar_chart, color: iconColor),
-                onPressed: () {},
-              ),
+              IconButton(icon: Icon(Icons.bar_chart, color: iconColor), onPressed: () {}),
               const SizedBox(width: 40),
-              IconButton(
-                icon: Icon(Icons.person, color: iconColor),
-                onPressed: () {},
-              ),
+              IconButton(icon: Icon(Icons.person, color: iconColor), onPressed: () {}),
             ],
           ),
         ),
@@ -287,49 +203,74 @@ class _GoalsPageState extends State<GoalsPage> {
         height: 60,
         width: 60,
         decoration: BoxDecoration(
-          color: fabBackground,
+          color: theme.bottomAppBarTheme.color?.withOpacity(0.9),
           shape: BoxShape.circle,
         ),
         child: IconButton(
-          icon: Icon(Icons.add, color: fabIcon),
+          icon: Icon(Icons.add, color: iconColor),
           onPressed: _onAddGoal,
         ),
       ),
     );
   }
 
-  Widget buildGoalCard(Map<String, dynamic> goal) {
+  Widget buildGoalCard(Map<String, dynamic> goal, BuildContext context) {
+    final String title = goal['title'] ?? 'Untitled';
+    final bool isHabit = goal['isHabit'] ?? false;
+    final int total = goal['total'] ?? 100;
+    final int dailyTarget = goal['dailyTarget'] ?? 10;
+    final int progress = goal['progress'] ?? 0;
+    final String unit = goal['unit'] ?? '';
+    final Color color = goal['color'] ?? Theme.of(context).primaryColor;
+    final IconData icon = goal['icon'] ?? Icons.flag;
+
+    final int showTotal = isHabit ? dailyTarget : total;
+    final String label = "$progress / $showTotal ${isHabit ? '' : unit}";
+
+    Color darken(Color c, [double amount = 0.3]) {
+      final hsl = HSLColor.fromColor(c);
+      return hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0)).toColor();
+    }
+
+    final Color textColor = darken(color, 0.3);
+
     return Container(
-      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? Colors.black12 : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).brightness == Brightness.dark
-              ? const Color(0xFF7566EA)
-              : const Color(0xFF3B4E75),
-        ),
+        color: color,
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.all(16),
+      child: Stack(
         children: [
-          Icon(goal['icon'] ?? Icons.flag, size: 28, color: primaryTextColor),
-          const SizedBox(height: 8),
-          Text(
-            goal['title'] ?? 'Untitled',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: primaryTextColor,
-            ),
+          Align(
+            alignment: Alignment.topRight,
+            child: Icon(icon, color: Colors.white, size: 20),
           ),
-          const Spacer(),
-          Text(
-            goal['unit'] != null ? "0 / ${goal['unit']}" : "In Progress",
-            style: TextStyle(
-              color: secondaryTextColor,
-            ),
-          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              LinearProgressIndicator(
+                value: (progress / showTotal).clamp(0.0, 1.0),
+                backgroundColor: Colors.white.withOpacity(0.4),
+                color: textColor,
+                minHeight: 6,
+              ),
+              const SizedBox(height: 4),
+              Text(label, style: TextStyle(fontSize: 12, color: textColor)),
+            ],
+          )
         ],
       ),
     );
@@ -337,12 +278,12 @@ class _GoalsPageState extends State<GoalsPage> {
 }
 
 Widget buildTab(BuildContext context, String label, {bool active = false}) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  final Color activeBg = isDark ? const Color(0xFF7566EA) : const Color(0xFFC3CCF7);
-  final Color inactiveBg = isDark ? Colors.transparent : const Color(0xFFF8F1E9);
-  final Color activeText = isDark ? const Color(0xFFE5E4F0) : Colors.white;
-  final Color inactiveText = isDark ? const Color(0xFF7566EA) : const Color(0xFF3C4F76);
-  final Color borderColor = isDark ? const Color(0xFF7566EA) : const Color(0xFF3B4E75);
+  final theme = Theme.of(context);
+  final Color primary = theme.primaryColor;
+  final Color inactiveBg = theme.scaffoldBackgroundColor;
+  final Color activeText = theme.textTheme.bodyLarge?.color ?? Colors.white;
+  final Color inactiveText = primary;
+  final Color borderColor = primary.withOpacity(0.8);
 
   return Padding(
     padding: const EdgeInsets.only(right: 12),
@@ -350,7 +291,7 @@ Widget buildTab(BuildContext context, String label, {bool active = false}) {
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
       decoration: BoxDecoration(
-        color: active ? activeBg : inactiveBg,
+        color: active ? primary : inactiveBg,
         borderRadius: BorderRadius.circular(20),
         border: active ? null : Border.all(color: borderColor, width: 1.5),
       ),
