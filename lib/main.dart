@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import 'plus.dart';
 import 'app_colors.dart';
 import 'theme.dart';
+import 'calendar.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -24,6 +24,9 @@ class GoalsPage extends StatefulWidget {
 
 class _GoalsPageState extends State<GoalsPage> {
   final List<Map<String, dynamic>> allGoals = [];
+
+  final PageController _pageController = PageController();
+  int currentTabIndex = 0;
 
   String get currentDay => DateFormat('E').format(DateTime.now());
 
@@ -72,6 +75,12 @@ class _GoalsPageState extends State<GoalsPage> {
     }
   }
 
+  void _onTabTap(int index) {
+    setState(() => currentTabIndex = index);
+    _pageController.animateToPage(index,
+        duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -83,104 +92,72 @@ class _GoalsPageState extends State<GoalsPage> {
     return Scaffold(
       backgroundColor: bgColor,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Icon(Icons.search, size: 28, color: iconColor),
-                ),
-                const SizedBox(height: 16),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "$dynamicGreeting,\n(User name)",
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: textColor,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Icon(Icons.search, size: 28, color: iconColor),
+                  ),
+                  const SizedBox(height: 16),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "$dynamicGreeting,\n(User name)",
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  height: 50,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      buildTab(context, "Main Page", active: true),
-                      buildTab(context, "Analytics"),
-                      buildTab(context, "Calendar"),
-                      buildTab(context, "PDF reader"),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                TableCalendar(
-                  firstDay: DateTime.utc(2000, 1, 1),
-                  lastDay: DateTime.utc(2100, 12, 31),
-                  focusedDay: DateTime.now(),
-                  headerStyle: HeaderStyle(
-                    formatButtonVisible: false,
-                    titleCentered: true,
-                    titleTextStyle: TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 50,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        GestureDetector(
+                          onTap: () => _onTabTap(0),
+                          child: buildTab(context, "Main Page",
+                              active: currentTabIndex == 0),
+                        ),
+                        GestureDetector(
+                          onTap: () => _onTabTap(1),
+                          child: buildTab(context, "Analytics",
+                              active: currentTabIndex == 1),
+                        ),
+                        GestureDetector(
+                          onTap: () => _onTabTap(2),
+                          child: buildTab(context, "Calendar",
+                              active: currentTabIndex == 2),
+                        ),
+                        GestureDetector(
+                          onTap: () => _onTabTap(3),
+                          child: buildTab(context, "PDF reader",
+                              active: currentTabIndex == 3),
+                        ),
+                      ],
                     ),
                   ),
-                  calendarStyle: CalendarStyle(
-                    weekendTextStyle: TextStyle(color: textColor),
-                    defaultTextStyle: TextStyle(color: textColor),
-                    todayDecoration: BoxDecoration(
-                      color: theme.primaryColor.withOpacity(0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    selectedDecoration: BoxDecoration(
-                      color: theme.primaryColor.withOpacity(0.4),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Your goals for today",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: textColor,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                todayGoals.isEmpty
-                    ? Padding(
-                  padding: const EdgeInsets.only(top: 32),
-                  child: Text(
-                    "No goals for today. Tap + to add one!",
-                    style: TextStyle(fontSize: 16, color: theme.textTheme.bodySmall?.color),
-                  ),
-                )
-                    : GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1.4,
-                  ),
-                  itemCount: todayGoals.length,
-                  itemBuilder: (context, index) {
-                    final goal = todayGoals[index];
-                    return buildGoalCard(goal, context);
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  _buildMainGoalsContent(theme, textColor),
+                  const Center(child: Text("Analytics Page")),
+                  const CalendarPage(),
+                  const Center(child: Text("PDF Reader Placeholder")),
+                ],
+              ),
+            )
+          ],
         ),
       ),
       bottomNavigationBar: BottomAppBar(
@@ -191,9 +168,13 @@ class _GoalsPageState extends State<GoalsPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              IconButton(icon: Icon(Icons.bar_chart, color: iconColor), onPressed: () {}),
+              IconButton(
+                  icon: Icon(Icons.bar_chart, color: iconColor),
+                  onPressed: () {}),
               const SizedBox(width: 40),
-              IconButton(icon: Icon(Icons.person, color: iconColor), onPressed: () {}),
+              IconButton(
+                  icon: Icon(Icons.person, color: iconColor),
+                  onPressed: () {}),
             ],
           ),
         ),
@@ -203,12 +184,66 @@ class _GoalsPageState extends State<GoalsPage> {
         height: 60,
         width: 60,
         decoration: BoxDecoration(
-          color: theme.bottomAppBarTheme.color?.withOpacity(0.9),
+          color: theme.textTheme.bodyMedium?.color,
           shape: BoxShape.circle,
         ),
         child: IconButton(
-          icon: Icon(Icons.add, color: iconColor),
+          icon: Icon(
+            Icons.add,
+            color: theme.bottomAppBarTheme.color,
+          ),
           onPressed: _onAddGoal,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMainGoalsContent(ThemeData theme, Color textColor) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 24),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Your goals for today",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            todayGoals.isEmpty
+                ? Padding(
+              padding: const EdgeInsets.only(top: 32),
+              child: Text(
+                "No goals for today. Tap + to add one!",
+                style: TextStyle(
+                    fontSize: 16,
+                    color: theme.textTheme.bodySmall?.color),
+              ),
+            )
+                : GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate:
+              const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.4,
+              ),
+              itemCount: todayGoals.length,
+              itemBuilder: (context, index) {
+                final goal = todayGoals[index];
+                return buildGoalCard(goal, context);
+              },
+            ),
+          ],
         ),
       ),
     );
